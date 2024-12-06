@@ -1,15 +1,34 @@
+[CmdletBinding()]
+param (
+    [Parameter(Mandatory)]
+    [string]
+    $SubscriptionId,
+
+    [Parameter()]
+    [string]
+    $ResourceGroupName = ''
+)
+
 # Import the required modules
 Import-Module Az.Compute
 Import-Module Az.Accounts
 
 # Authenticate to Azure
-# This script assumes you have set up a Run As account in your Azure Automation account
-$Connection = Get-AutomationConnection -Name "AzureRunAsConnection"
-Connect-AzAccount -ServicePrincipal -TenantId $Connection.TenantId -ApplicationId $Connection.ApplicationId -CertificateThumbprint $Connection.CertificateThumbprint
+try {
+    "Logging in to Azure..."
+    Connect-AzAccount -Identity
+} catch {
+    Write-Error -Message $_.Exception
+    throw $_.Exception
+}
+
 
 # Define the resource group and the list of VMs
-$resourceGroupName = "YourResourceGroupName"
-$vmNames = @("VM1", "VM2", "VM3", ...) # Add all your VM names here
+if ([string]::IsNullOrEmpty($ResourceGroupName)) {
+    Get-AzVM | Where-Object {$_.tags.EnablePrivateNetworkGC -eq "TRUE"}
+} else {
+    Get-AzVM -ResourceGroupName $ResourceGroupName | Where-Object {$_.tags.EnablePrivateNetworkGC -eq "TRUE"} 
+}
 
 # Function to get the last logon time of a VM
 function Get-LastLogonTime {
@@ -45,6 +64,6 @@ if ($idleTime -gt $idleTimeThreshold) {
             Write-Output "VM $vmName is not running. No action required."
         }
     } catch {
-        Write-Error "An error occurred while processing VM $vmName: $_"
+        Write-Error "An error occurred while processing VM $($vmName): $_"
     }
 }
