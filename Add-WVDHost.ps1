@@ -43,8 +43,8 @@ if (!(Test-Path -Path $RootFolder)){New-Item -Path $RootFolder -ItemType Directo
 #Download all source file async and wait for completion
 LogWriter("Download WVD Agent & bootloader")
 $files = @(
-    @{url = "https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrmXv"; path = $AgentInstaller}
-    @{url = "https://query.prod.cms.rt.microsoft.com/cms/api/am/binary/RWrxrH"; path = $BootLoaderInstaller}
+    @{url = "https://go.microsoft.com/fwlink/?linkid=2310011"; path = $AgentInstaller}
+    @{url = "https://go.microsoft.com/fwlink/?linkid=2311028"; path = $BootLoaderInstaller}
 )
 $workers = foreach ($f in $files)
 { 
